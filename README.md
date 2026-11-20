@@ -4,8 +4,6 @@
 
 Everything runs in one self-contained HTML page. There is nothing to install and no server: open `gamow_states.html` in a browser, pick a preset (for example α + ⁸Be → ¹²C, the Hoyle state) and the page finds the complex-energy pole, plots the wave function and gives widths, ANCs, transition strengths, cross sections and half-lives. A Theory tab with 26 sections and about 75 typeset equations documents every method used.
 
-> Live page: `https://<your-github-user>.github.io/gamow-states/` (see [Publishing on GitHub Pages](#publishing-on-github-pages))
-
 ---
 
 ## Contents
@@ -19,7 +17,6 @@ Everything runs in one self-contained HTML page. There is nothing to install and
 - [Repository layout](#repository-layout)
 - [Known limitations](#known-limitations)
 - [Data and credits](#data-and-credits)
-- [Citing](#citing)
 - [License](#license)
 
 ---
@@ -113,93 +110,6 @@ For fully offline use, download these two files and point the `<script>` tags in
 
 ---
 
-## Building from source
-
-The page is assembled from separate source files by a short Python script (Python 3, standard library only):
-
-```bash
-python3 build.py        # writes gamow_states.html
-```
-
-`build.py` inserts each module into its placeholder in `template.html` (`/*__CORE__*/`, `/*__UI__*/`, …), strips the Node `module.exports` lines, and stops if a placeholder is left unfilled.
-
-Before building after an edit to `ui.js`, a syntax check catches mistakes that would otherwise leave the page blank:
-
-```bash
-node --check ui.js
-```
-
----
-
-## Running the tests
-
-Requires Node.js 18 or later. The physics modules are loaded directly in Node; no browser is needed.
-
-```bash
-node tests/run.js            # compare with tests/golden.json
-node tests/run.js --update   # store new reference values after an intended change
-```
-
-Expected output:
-
-```
-175 / 175 values within 1e-9 relative (53 cases, ~50 s)
-```
-
-`tests/ccfull_fortran_reference.json` holds the cross sections of the original Fortran CCFULL (Numerov method, version of Z. Liao and K. Hagino) for its test deck and is used to validate `ccfull.js`.
-
----
-
-## Repository layout
-
-```
-gamow-states/
-├── gamow_states.html        built page (commit it for GitHub Pages)
-├── build.py                 assembles the page from the sources
-├── template.html            layout, styles, Theory tab
-├── core.js                  constants, potentials, Numerov, complex scaling, pole finding,
-│                            ANC/widths, EM transitions, α-decay engine
-├── gamow.js                 GAMOW (1982) method
-├── spectral.js              Chebyshev collocation, complex eigenvalue solver
-├── scattering.js            Coulomb functions, S-matrix, cross sections, effective range,
-│                            angular distributions, astrophysics, direct capture, fusion
-├── ccfull.js                CCFULL rewrite, R-matrix on a Lagrange mesh, propagators,
-│                            orientation integral, coupled-channel bound/Gamow states
-│                            and real-energy coupled-channel scattering
-├── tasks.js                 composite jobs run in the Web Worker
-├── ui.js                    controls, plots, tables, exports, worker bridge
-├── nubase.js                α emitters parsed from NUBASE2020
-├── tests/
-│   ├── run.js               regression runner
-│   ├── cases.js             53 test cases
-│   ├── bundle.js            loads the modules in Node
-│   ├── golden.json          175 reference values
-│   └── ccfull_fortran_reference.json
-└── tools/
-    └── mathconv.py          converts HTML/Unicode formulas in the Theory tab to MathJax
-```
-
----
-
-## Publishing on GitHub Pages
-
-```bash
-git init
-git add .
-git commit -m "Gamow States: initial release"
-git branch -M main
-git remote add origin https://github.com/<your-github-user>/gamow-states.git
-git push -u origin main
-```
-
-Then in the repository: **Settings → Pages → Build and deployment → Deploy from a branch → `main` / root**. Because Pages serves `index.html` by default, either rename the built file or add a one-line redirect:
-
-```bash
-cp gamow_states.html index.html
-```
-
----
-
 ## Known limitations
 
 These are also listed, with what the page does about each, in Theory §19.
@@ -224,23 +134,6 @@ These are also listed, with what the page does about each, in Theory §19.
 - Coulomb functions: A. R. Barnett, *Comput. Phys. Commun.* **27** (1982) 147; I. J. Thompson, A. R. Barnett, *J. Comput. Phys.* **64** (1986) 490.
 
 The full reference list (26 entries) is in Theory §26.
-
----
-
-## Citing
-
-If you use this code in published work, please cite the repository and the original methods it implements (CCFULL, GAMOW, NUBASE2020 and the references above). A `CITATION.cff` file can be added for GitHub's "Cite this repository" button:
-
-```yaml
-cff-version: 1.2.0
-title: "Gamow States: a browser solver for nuclear resonances, scattering, decay and fusion"
-authors:
-  - family-names: "<Family name>"
-    given-names: "<Given name>"
-version: 1.0.0
-date-released: 2026-11-20
-url: "https://github.com/<your-github-user>/gamow-states"
-```
 
 ---
 
